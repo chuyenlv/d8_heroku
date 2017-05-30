@@ -5,11 +5,15 @@ machine:
   php:
     version: 7.0.4
 
+  environment:
+    PATH: "${HOME}/terminus/bin"
+
 dependencies:
   cache_directories:
     - ~/.composer/cache
     - ~/.terminus/tokens
     - ~/terminus
+    - /usr/local/bin/terminus
 
   pre:
     # Set github token to avoid rate limit
