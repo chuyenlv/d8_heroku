@@ -16,7 +16,7 @@
     "drupal/console": "^1.0.0-rc8",
     "drupal/core": "^8",
     "drush/drush": "~8",
-    "drupal/pathauto": "^8",
+    "drupal/pathauto": "1.0",
     "rvtraveller/qs-composer-installer": "1.1"
   },
   "require-dev": {
