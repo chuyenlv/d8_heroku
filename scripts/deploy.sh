@@ -13,8 +13,9 @@ txtrst=$(tput sgr0) # Text reset.
 
 COMMIT_MESSAGE="$(git show --name-only --decorate)"
 PANTHEON_ENV="dev"
+BRANCH_DEPLOY="master"
 FROM_ENV="live"
-TEST_URL=""
+SKIP_BRANCH="dev|test|live"
 
 cd $HOME
 
@@ -33,10 +34,9 @@ git fetch
 echo -e "\n${txtylw}Logging into Terminus ${txtrst}"
 terminus auth:login --machine-token=$PANTHEON_MACHINE_TOKEN
 
-# Check if we are NOT on the master branch
-if [ $CIRCLE_BRANCH != "master" ]
+# Check if we are NOT on the branch deploy
+if [ $CIRCLE_BRANCH != $BRANCH_DEPLOY ]
 then
-
   # Branch name can't be more than 11 characters
   # Normalize branch name to adhere with Multidev requirements
   export normalize_branch="$CIRCLE_BRANCH"
@@ -44,10 +44,18 @@ then
   # If the branch name is invalid
     if [[ $normalize_branch =~ $valid ]]
     then
-    export normalize_branch="${normalize_branch:0:11}"
-    # Attempt to normalize it
-    export normalize_branch="${normalize_branch//[-_]}"
-    echo "Success: "$normalize_branch" is a valid branch name."
+      export normalize_branch="${normalize_branch:0:11}"
+      # Attempt to normalize it
+      export normalize_branch="${normalize_branch//[-_]}"
+      export IFS="|"
+      for name in $SKIP_BRANCH; do
+        if [[ "${name}" == "${normalize_branch}" ]]
+        then
+          echo "Error: Multidev cannot be created due to invalid branch name: $normalize_branch"
+          exit 1
+        fi
+      done
+      echo "Success: "$normalize_branch" is a valid branch name."
     else
       # Otherwise exit
     echo "Error: Multidev cannot be created due to invalid branch name: $normalize_branch"
@@ -89,11 +97,11 @@ then
   if [[ ${GIT_BRANCHES} == *"${normalize_branch}"* ]]
   then
     echo -e "\n${txtylw}Branch ${normalize_branch} found, checking it out ${txtrst}"
-      git checkout $normalize_branch
-    else
-      echo -e "\n${txtylw}Branch ${normalize_branch} not found, creating it ${txtrst}"
+    git checkout $normalize_branch
+  else
+    echo -e "\n${txtylw}Branch ${normalize_branch} not found, creating it ${txtrst}"
     git checkout -b $normalize_branch
-    fi
+  fi
 fi
 
 # Delete the web and vendor subdirectories if they exist
@@ -141,19 +149,11 @@ git add -A --force .
 git commit -m "Circle CI build $CIRCLE_BUILD_NUM by $CIRCLE_PROJECT_USERNAME" -m "$COMMIT_MESSAGE"
 
 # Force push to Pantheon
-if [ $CIRCLE_BRANCH != "master" ]
+if [ $CIRCLE_BRANCH != $BRANCH_DEPLOY ]
 then
   echo -e "\n${txtgrn}Pushing the ${normalize_branch} branch to Pantheon ${txtrst}"
   git push -u origin $normalize_branch --force
 else
   echo -e "\n${txtgrn}Pushing the master branch to Pantheon ${txtrst}"
   git push -u origin master --force
-fi
-
-# Send status to PR.
-if [ $CIRCLE_BRANCH != "master" ]
-then
-  PANTHEON_ENVS_NAME="$(terminus site:info $PANTHEON_SITE_UUID --format=string --field=name)"
-  TEST_URL="$(terminus multidev:list $PANTHEON_SITE_UUID --format=string --field=domain | grep $normalize_branch-$PANTHEON_ENVS_NAME)"
-  curl -H "Authorization: token ${GIT_TOKEN}" --request POST --data '{"state": "success", "description": "Url Env", "target_url": "http://'$TEST_URL'"}' https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/statuses/$CIRCLE_SHA1
 fi
