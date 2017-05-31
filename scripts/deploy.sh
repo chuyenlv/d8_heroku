@@ -12,7 +12,19 @@ txtwht=$(tput setaf 7) # White
 txtrst=$(tput sgr0) # Text reset.
 
 COMMIT_MESSAGE="$(git show --name-only --decorate)"
-PANTHEON_ENV="dev"
+
+if [ -z "${GIT_BRANCH_DEPLOY+1}" ]
+then
+  # variable is not defined, use default
+  GIT_BRANCH_DEPLOY="master"
+fi
+
+# If we are not and the master branch and this isn't a pull request, don't deploy to Pantheon
+if [[ "${CIRCLE_BRANCH}" != "${GIT_BRANCH_DEPLOY}" && -z "$CI_PULL_REQUEST" ]]
+then
+  echo -e "\n${txtred}Skipping deployment to Pantheon - not on the $GIT_BRANCH_DEPLOY branch and not a pull request.\nOpen a pull request to deploy to a multidev on Pantheon. ${txtrst}"
+  exit 0
+fi
 
 BASE_SKIP="dev|test|live"
 if [ -n "${GIT_SKIP_BRANCH+1}" ]
@@ -22,11 +34,14 @@ else
   GIT_SKIP_BRANCH="dev|test|live"
 fi
 
-if [ -z "${GIT_BRANCH_DEPLOY+1}" ]
-then
-  # variable is not defined, use default
-  GIT_BRANCH_DEPLOY="master"
-fi
+# Don't deploy to Pantheon with some branch skip
+for name in $GIT_SKIP_BRANCH; do
+  if [[ "${name}" == "${CIRCLE_BRANCH}" ]]
+  then
+    echo "Skip: Branch $CIRCLE_BRANCH skip to build multidev."
+    exit 0
+  fi
+done
 
 if [ -z "${PANTHEON_FROM_ENV+1}" ]
 then
@@ -52,35 +67,14 @@ echo -e "\n${txtylw}Logging into Terminus ${txtrst}"
 terminus auth:login --machine-token=$PANTHEON_MACHINE_TOKEN
 
 # Check if we are NOT on the branch deploy
-if [ $CIRCLE_BRANCH != $GIT_BRANCH_DEPLOY ]
+if [ $CIRCLE_BRANCH != $GIT_BRANCH_DEPLOY && -n "$CI_PULL_REQUEST" ]
 then
-  # Branch name can't be more than 11 characters
-  # Normalize branch name to adhere with Multidev requirements
-  export normalize_branch="$CIRCLE_BRANCH"
-  export valid="^[-0-9a-z]" # allows digits 0-9, lower case a-z, and -
-  # If the branch name is invalid
-    if [[ $normalize_branch =~ $valid ]]
-    then
-      export normalize_branch="${normalize_branch:0:11}"
-      # Attempt to normalize it
-      export normalize_branch="${normalize_branch//[-_]}"
-      export IFS="|"
-      for name in $GIT_SKIP_BRANCH; do
-        if [[ "${name}" == "${normalize_branch}" ]]
-        then
-          echo "Skip: Branch $normalize_branch skip to build multidev."
-          exit 0
-        fi
-      done
-      echo "Success: "$normalize_branch" is a valid branch name."
-    else
-      # Otherwise exit
-    echo "Error: Multidev cannot be created due to invalid branch name: $normalize_branch"
-    exit 1
-  fi
+  # Get PR number
+  PR_NUMBER=${CI_PULL_REQUEST##*/}
+  echo -e "\n${txtylw}Processing pull request #$PR_NUMBER ${txtrst}"
 
-  # Update the environment variable
-  PANTHEON_ENV="${normalize_branch}"
+  # Multidev name is the pull request
+  normalize_branch="pr-$PR_NUMBER"
 
   echo -e "\n${txtylw}Checking for the multidev environment ${normalize_branch} via Terminus ${txtrst}"
 
