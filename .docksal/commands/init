@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+# parse file yaml to variables.
+parse_yaml() {
+  local prefix=$2
+  local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+  sed -ne "s|^\($s\)\($w\)$s:$s\"\(.*\)\"$s\$|\1$fs\2$fs\3|p" \
+      -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
+  awk -F$fs '{
+    indent = length($1)/2;
+    vname[indent] = $2;
+    for (i in vname) {if (i > indent) {delete vname[i]}}
+    if (length($3) > 0) {
+      vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+      printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
+    }
+  }'
+}
+
+# site install
+site_install() {
+  fin drush si -y --account-pass=1234 --site-name="Drops" --root=/var/www/web
+  if [[ -e "config/system.site.yml" ]]; then
+    # read yaml file
+    echo -e "\nConfig files exist"
+    eval $(parse_yaml config/system.site.yml "config_")
+    fin drush cset system.site uuid $config_uuid -y --root=/var/www/web
+
+    echo -e "\nDelete entities exist"
+    fin drush ev '\Drupal::entityManager()->getStorage("shortcut_set")->load("default")->delete();'  --root=/var/www/web
+
+    echo -e "\nRun import config"
+    fin drush cim -y --root=/var/www/web
+    fin drush cr -y --root=/var/www/web
+  fi
+}
+
+# Check current folder run command
+if [[ ! -d ".docksal" ]]; then
+  echo "This command only run in root of repo"
+  exit 0
+fi
+
+# Start containers
+echo -e "\nStart containers"
+fin up
+
+echo -e "\nWaiting 10s for MySQL to start..."
+sleep 10
+
+echo -e "\nSite install"
+site_install
+
