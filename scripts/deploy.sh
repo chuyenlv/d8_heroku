@@ -67,14 +67,14 @@ echo -e "\n${txtylw}Logging into Terminus ${txtrst}"
 terminus auth:login --machine-token=$PANTHEON_MACHINE_TOKEN
 
 # Check if we are NOT on the branch deploy
-if [ "${CIRCLE_BRANCH}" != "${GIT_BRANCH_DEPLOY}" && -n "$CI_PULL_REQUEST" ]
+if [ -n "$CI_PULL_REQUEST" ]
 then
   # Get PR number
   PR_NUMBER=${CI_PULL_REQUEST##*/}
   echo -e "\n${txtylw}Processing pull request #$PR_NUMBER ${txtrst}"
 
   # Multidev name is the pull request
-  normalize_branch="pr-$PR_NUMBER"
+  normalize_branch="pr$PR_NUMBER"
 
   echo -e "\n${txtylw}Checking for the multidev environment ${normalize_branch} via Terminus ${txtrst}"
 
