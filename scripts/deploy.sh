@@ -13,9 +13,28 @@ txtrst=$(tput sgr0) # Text reset.
 
 COMMIT_MESSAGE="$(git show --name-only --decorate)"
 PANTHEON_ENV="dev"
-BRANCH_DEPLOY="master"
-FROM_ENV="live"
-SKIP_BRANCH="dev|test|live"
+
+BASE_SKIP="dev|test|live"
+if [ -n "${GIT_SKIP_BRANCH+1}" ]
+then
+  GIT_SKIP_BRANCH="$GIT_SKIP_BRANCH|$BASE_SKIP"
+else
+  GIT_SKIP_BRANCH="dev|test|live"
+fi
+
+if [ -n "${GIT_BRANCH_DEPLOY+1}" ]
+then
+  # variable is defined
+else
+  GIT_BRANCH_DEPLOY="master"
+fi
+
+if [ -n "${PANTHEON_FROM_ENV+1}" ]
+then
+  # variable is defined
+else
+  PANTHEON_FROM_ENV="dev"
+fi
 
 cd $HOME
 
@@ -35,7 +54,7 @@ echo -e "\n${txtylw}Logging into Terminus ${txtrst}"
 terminus auth:login --machine-token=$PANTHEON_MACHINE_TOKEN
 
 # Check if we are NOT on the branch deploy
-if [ $CIRCLE_BRANCH != $BRANCH_DEPLOY ]
+if [ $CIRCLE_BRANCH != $GIT_BRANCH_DEPLOY ]
 then
   # Branch name can't be more than 11 characters
   # Normalize branch name to adhere with Multidev requirements
@@ -48,7 +67,7 @@ then
       # Attempt to normalize it
       export normalize_branch="${normalize_branch//[-_]}"
       export IFS="|"
-      for name in $SKIP_BRANCH; do
+      for name in $GIT_SKIP_BRANCH; do
         if [[ "${name}" == "${normalize_branch}" ]]
         then
           echo "Error: Multidev cannot be created due to invalid branch name: $normalize_branch"
@@ -88,7 +107,7 @@ then
   else
     # otherwise, create the multidev branch
     echo -e "\n${txtylw}Multidev not found, creating the multidev branch ${normalize_branch} via Terminus ${txtrst}"
-    terminus multidev:create $PANTHEON_SITE_UUID.$FROM_ENV $normalize_branch
+    terminus multidev:create $PANTHEON_SITE_UUID.$PANTHEON_FROM_ENV $normalize_branch
     git fetch
   fi
 
@@ -149,7 +168,7 @@ git add -A --force .
 git commit -m "Circle CI build $CIRCLE_BUILD_NUM by $CIRCLE_PROJECT_USERNAME" -m "$COMMIT_MESSAGE"
 
 # Force push to Pantheon
-if [ $CIRCLE_BRANCH != $BRANCH_DEPLOY ]
+if [ $CIRCLE_BRANCH != $GIT_BRANCH_DEPLOY ]
 then
   echo -e "\n${txtgrn}Pushing the ${normalize_branch} branch to Pantheon ${txtrst}"
   git push -u origin $normalize_branch --force
