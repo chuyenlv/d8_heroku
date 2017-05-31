@@ -67,7 +67,7 @@ echo -e "\n${txtylw}Logging into Terminus ${txtrst}"
 terminus auth:login --machine-token=$PANTHEON_MACHINE_TOKEN
 
 # Check if we are NOT on the branch deploy
-if [ $CIRCLE_BRANCH != $GIT_BRANCH_DEPLOY && -n "$CI_PULL_REQUEST" ]
+if [ "${CIRCLE_BRANCH}" != "${GIT_BRANCH_DEPLOY}" && -n "$CI_PULL_REQUEST" ]
 then
   # Get PR number
   PR_NUMBER=${CI_PULL_REQUEST##*/}
