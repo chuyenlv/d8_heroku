@@ -22,17 +22,15 @@ else
   GIT_SKIP_BRANCH="dev|test|live"
 fi
 
-if [ -n "${GIT_BRANCH_DEPLOY+1}" ]
+if [ -z "${GIT_BRANCH_DEPLOY+1}" ]
 then
-  # variable is defined
-else
+  # variable is not defined, use default
   GIT_BRANCH_DEPLOY="master"
 fi
 
-if [ -n "${PANTHEON_FROM_ENV+1}" ]
+if [ -z "${PANTHEON_FROM_ENV+1}" ]
 then
-  # variable is defined
-else
+  # variable is not defined, use default
   PANTHEON_FROM_ENV="dev"
 fi
 
