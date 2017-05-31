@@ -68,8 +68,8 @@ then
       for name in $GIT_SKIP_BRANCH; do
         if [[ "${name}" == "${normalize_branch}" ]]
         then
-          echo "Error: Multidev cannot be created due to invalid branch name: $normalize_branch"
-          exit 1
+          echo "Skip: Branch $normalize_branch skip to build multidev."
+          exit 0
         fi
       done
       echo "Success: "$normalize_branch" is a valid branch name."
