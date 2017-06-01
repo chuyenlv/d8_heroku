@@ -155,6 +155,12 @@ rsync -a $BUILD_DIR/config/* ./config/
 echo -e "\n${txtylw}Copying $BUILD_DIR/composer.json and $BUILD_DIR/composer.lock ${txtrst}"
 cp $BUILD_DIR/composer.* .
 
+if [ -n "${SLACK_HOOK_URL+1}" ]
+then
+  echo -e "\n${txtylw}Create/Update the secret Webhook URL into a file called secrets.json ${txtrst}"
+  echo "{\"slack_url\": \"$SLACK_HOOK_URL\"}" > secrets.json
+fi
+
 echo -e "\n${txtylw}Forcibly adding all files and committing${txtrst}"
 git add -A --force .
 git commit -m "Circle CI build $CIRCLE_BUILD_NUM by $CIRCLE_PROJECT_USERNAME" -m "$COMMIT_MESSAGE"
@@ -167,4 +173,8 @@ then
 else
   echo -e "\n${txtgrn}Pushing the master branch to Pantheon ${txtrst}"
   git push -u origin master --force
+
+  if [[ "$DEPLOY_CLONE_CONTENT_FROM_ENV" == "test" || "$DEPLOY_CLONE_CONTENT_FROM_ENV" == "live" ]]; then
+    terminus multidev:create $PANTHEON_SITE_UUID.$DEPLOY_CLONE_CONTENT_FROM_ENV dev -y
+  fi
 fi
