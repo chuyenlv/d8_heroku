@@ -12,6 +12,7 @@ txtwht=$(tput setaf 7) # White
 txtrst=$(tput sgr0) # Text reset.
 
 COMMIT_MESSAGE="$(git show --name-only --decorate)"
+GITHUB_API_URL="https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
 
 if [ -z "${GIT_BRANCH_DEPLOY+1}" ]
 then
