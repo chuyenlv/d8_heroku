@@ -5,18 +5,29 @@ php_version: 7.0
 workflows:
   deploy:
     after:
-      - type: webphp
-        description: Import configuration from .yml files and clear cache
+      -
+        type: webphp
+        description: Run import configuration from .yml files when deploy code
         script: private/scripts/drush_config_import.php
+
+      -
+        type: webphp
+        description: Send slack notification when deploy code
+        script: private/scripts/slack_notification.php
 
   sync_code:
     after:
       - type: webphp
-        description: Import configuration from .yml files and clear cache
+        description: Run import configuration from .yml files when sync code
         script: private/scripts/drush_config_import.php
+
+      -
+        type: webphp
+        description: Send slack notification when sync code
+        script: private/scripts/slack_notification.php
 
   clone_database:
     after:
       - type: webphp
-        description: Import configuration from .yml files and clear cache
+        description: Run import configuration from .yml files when clone database
         script: private/scripts/drush_config_import.php
