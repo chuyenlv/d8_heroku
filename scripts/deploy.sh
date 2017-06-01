@@ -67,6 +67,9 @@ git fetch
 echo -e "\n${txtylw}Logging into Terminus ${txtrst}"
 terminus auth:login --machine-token=$PANTHEON_MACHINE_TOKEN
 
+# Get a list of all environments
+PANTHEON_ENVS="$(terminus multidev:list $PANTHEON_SITE_UUID --format=list --field=Name)"
+
 # Check if we are NOT on the branch deploy
 if [ -n "$CI_PULL_REQUEST" ]
 then
@@ -78,10 +81,6 @@ then
   normalize_branch="pr$PR_NUMBER"
 
   echo -e "\n${txtylw}Checking for the multidev environment ${normalize_branch} via Terminus ${txtrst}"
-
-  # Get a list of all environments
-  PANTHEON_ENVS="$(terminus multidev:list $PANTHEON_SITE_UUID --format=list --field=Name)"
-  terminus multidev:list $PANTHEON_SITE_UUID --fields=Name
 
   MULTIDEV_FOUND=0
 
