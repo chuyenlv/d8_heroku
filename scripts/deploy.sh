@@ -175,10 +175,9 @@ else
   git push -u origin master --force
 
   if [[ "$DEPLOY_CLONE_CONTENT_FROM_ENV" == "test" || "$DEPLOY_CLONE_CONTENT_FROM_ENV" == "live" ]]; then
-    terminus multidev:create $PANTHEON_SITE_UUID.$DEPLOY_CLONE_CONTENT_FROM_ENV dev -y
+    terminus env:clone-content $PANTHEON_SITE_UUID.$DEPLOY_CLONE_CONTENT_FROM_ENV dev -y
   fi
 fi
-
 
 echo -e "\n${txtylw}Cleaning up multidevs from closed pull requests...${txtrst}"
 cd $BUILD_DIR
