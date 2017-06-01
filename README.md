@@ -38,3 +38,14 @@ Deploy to pantheon requirement ssh for access repo from pantheon, so you have to
 * [Composer](https://getcomposer.org/)
 * [CircleCI](https://circleci.com/)
 * [Terminus](https://pantheon.io/docs/terminus/)
+
+## Install new project.
+* Clone repo `ffwvn/drops-8-composer` and push code to new repo for your project.
+* Create new site from Pantheon, you should choose `Empty Upstream` (upstream ID is `4c7176de-e079-eed1-154d-44d5a9945b65`).
+* Enable `Build project` and setup for Circle CI.
+* Create/Update branch and check result.
+
+## Setup in local
+* Clone repo
+* `composer install` to install dependencies and base config
+* `fin init` to start containers and setup local site for first time run
