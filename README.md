@@ -26,6 +26,10 @@ The following sensitive variables will need to be stored in Circle CI as environ
     * A Pantheon machine token for a user with access to the above repository
 * PANTHEON_FROM_ENV
     * The env will clone database and files when create new multidev, default is `dev` env.
+* DEPLOY_CLONE_CONTENT_FROM_ENV
+    * The env `test` or `live` used to clone content (database and files) to `dev` env when deploy. If variable is not set, content in `dev` env don't change.
+* SLACK_HOOK_URL
+    * The Slack hook URL in the format of `https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX`
 
 Deploy to pantheon requirement ssh for access repo from pantheon, so you have to add private key in tab `SSH Permissions` on page settings. And public key added to account in dashboard pantheon.
 
