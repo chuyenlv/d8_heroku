@@ -12,6 +12,7 @@ txtwht=$(tput setaf 7) # White
 txtrst=$(tput sgr0) # Text reset.
 
 COMMIT_MESSAGE="$(git show --name-only --decorate)"
+GITHUB_API_URL="https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
 
 if [ -z "${GIT_BRANCH_DEPLOY+1}" ]
 then
@@ -168,3 +169,31 @@ else
   echo -e "\n${txtgrn}Pushing the master branch to Pantheon ${txtrst}"
   git push -u origin master --force
 fi
+
+
+echo -e "\n${txtylw}Cleaning up multidevs from closed pull requests...${txtrst}"
+cd $BUILD_DIR
+while read -r b; do
+  if [[ $b =~ ^pr[0-9]+ ]]
+  then
+    PR_NUMBER=${b#pr}
+  else
+    echo -e "\n${txtylw}NOT deleting the multidev '$b' since it was created manually ${txtrst}"
+    continue
+  fi
+  echo -e "\n${txtylw}Analyzing the multidev: $b...${txtrst}"
+  PR_RESPONSE="$(curl --write-out %{http_code} --silent --output /dev/null $GITHUB_API_URL/pulls/$PR_NUMBER)"
+  if [ $PR_RESPONSE -eq 200 ]
+  then
+    PR_STATE="$(curl $GITHUB_API_URL/pulls/$PR_NUMBER | jq -r '.state')"
+    if [ "open" == "$PR_STATE"  ]
+    then
+      echo -e "\n${txtylw}NOT deleting the multidev '$b' since the pull request is still open ${txtrst}"
+    else
+      echo -e "\n${txtred}Deleting the multidev for closed pull request #$PR_NUMBER...${txtrst}"
+      terminus multidev:delete $PANTHEON_SITE_UUID.$b --delete-branch --yes
+    fi
+  else
+    echo -e "\n${txtred}Invalid pull request number: $PR_NUMBER...${txtrst}"
+  fi
+done <<< "$PANTHEON_ENVS"
