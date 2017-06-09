@@ -115,7 +115,14 @@ then
   fi
 fi
 
-# Delete the web and vendor subdirectories if they exist
+# Delete the config, web and vendor subdirectories if they exist
+if [ -d "$HOME/pantheon/config" ]
+then
+  # Remove it
+  echo -e "\n${txtylw}Removing $HOME/pantheon/config ${txtrst}"
+  rm -rf $HOME/pantheon/config
+fi
+
 if [ -d "$HOME/pantheon/web" ]
 then
   # Remove it without folder sites.
@@ -123,6 +130,7 @@ then
   find web/* -maxdepth 1 -type 'f' delete
   find web/* -maxdepth 1 -type 'd' | grep -v "sites" | xargs rm -rf
 fi
+
 if [ -d "$HOME/pantheon/vendor" ]
 then
   # Remove it
@@ -132,6 +140,15 @@ fi
 
 mkdir -p web
 mkdir -p vendor
+mkdir -p config
+
+# Delete folder files if exists
+if [ -d "$BUILD_DIR/web/sites/default/files" ]
+then
+  # Remove it
+  echo -e "\n${txtylw}Removing $BUILD_DIR/web/sites/default/files ${txtrst}"
+  rm -rf $BUILD_DIR/web/sites/default/files
+fi
 
 echo -e "\n${txtylw}Rsyncing $BUILD_DIR/web ${txtrst}"
 rsync -a $BUILD_DIR/web/* ./web/
@@ -190,10 +207,10 @@ while read -r b; do
     continue
   fi
   echo -e "\n${txtylw}Analyzing the multidev: $b...${txtrst}"
-  PR_RESPONSE="$(curl --write-out %{http_code} --silent --output /dev/null $GITHUB_API_URL/pulls/$PR_NUMBER)"
+  PR_RESPONSE="$(curl --write-out %{http_code} --silent --output /dev/null $GITHUB_API_URL/pulls/$PR_NUMBER?access_token=$GIT_TOKEN)"
   if [ $PR_RESPONSE -eq 200 ]
   then
-    PR_STATE="$(curl $GITHUB_API_URL/pulls/$PR_NUMBER | jq -r '.state')"
+    PR_STATE="$(curl $GITHUB_API_URL/pulls/$PR_NUMBER?access_token=$GIT_TOKEN | jq -r '.state')"
     if [ "open" == "$PR_STATE"  ]
     then
       echo -e "\n${txtylw}NOT deleting the multidev '$b' since the pull request is still open ${txtrst}"
