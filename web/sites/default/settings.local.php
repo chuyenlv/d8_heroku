@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file settings.local.php
+ */
+
 $databases['default']['default'] = array (
   'database' => 'default',
   'username' => 'user',
