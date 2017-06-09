@@ -34,10 +34,7 @@ if echo "$PHPCS_RESULT" | grep -q "$STR_ERROR"; then
     temp="${temp#\"}"
     file="${temp#$CURRENT_DIR/}"
 
-    temp="${f5%\"}"
-    comment="${temp#\"}"
-
-    postReviewComment $file $2 $comment $POST_URL
+    postReviewComment $file $2 $f5 $POST_URL
   done <<< "$PHPCS_CSV"
   exit 1
 fi
