@@ -14,3 +14,5 @@ else
   composer install
   cd -
 fi
+
+phpcs --config-set installed_paths ~/coder/coder_sniffer
