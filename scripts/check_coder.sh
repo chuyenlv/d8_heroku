@@ -5,7 +5,9 @@ postReviewComment() {
   comment=$3
   url=$4
 
-  curl -H "Authorization: token ${GIT_TOKEN}" --request POST --data '{"body": "${comment}", "commit_id": "${CIRCLE_SHA1}", "path": "${file}", "position": "${line}"}' $url
+  echo "$file $line $comment $url"
+
+  curl -H "Authorization: token ${GIT_TOKEN}" --request POST --data '{"body": "Need fix: ${comment}", "commit_id": "${CIRCLE_SHA1}", "path": "${file}", "position": "${line}"}' $url
 }
 
 PHPCS_RESULT="$(phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md web/modules/ web/themes/ web/profiles/)"
