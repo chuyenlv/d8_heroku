@@ -8,7 +8,7 @@ postReviewComment() {
   curl -H "Authorization: token ${GIT_TOKEN}" --request POST --data '{"body": "${comment}", "commit_id": "${CIRCLE_SHA1}", "path": "${file}", "position": "${line}"}' $url
 }
 
-PHPCS_RESULT="$(phpcs --standard=Drupal web)"
+PHPCS_RESULT="$(phpcs --standard=Drupal web/sites/ web/modules/ web/themes/ web/profiles/)"
 
 #echo "${PHPCS_RESULT}"
 
