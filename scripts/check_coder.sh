@@ -10,12 +10,11 @@ postReviewComment() {
 
 PHPCS_RESULT="$(phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md web/modules/ web/themes/ web/profiles/)"
 
-#echo "${PHPCS_RESULT}"
+echo "${PHPCS_RESULT}"
 
 STR_ERROR="ERROR"
 
 if echo "$PHPCS_RESULT" | grep -q "$STR_ERROR"; then
-  echo "${PHPCS_RESULT}"
   if [ -z "${CI_PULL_REQUEST+1}" ]
   then
     exit 0
