@@ -1,13 +1,18 @@
 #!/bin/bash
-postReviewComment() {
-  file=$1
-  line=$2
-  comment=$3
-  url=$4
 
-  echo '{"body": $comment, "commit_id": "${CIRCLE_SHA1}", "path": "${file}", "position": "${line}"}'
+comment=""
+file=""
+line=0
 
-  curl -H "Authorization: token ${GIT_TOKEN}" --request POST --data '{"body": $comment, "commit_id": "${CIRCLE_SHA1}", "path": "${file}", "position": "${line}"}' $url
+generate_post_data() {
+  cat <<EOF
+{
+  "body": $comment,
+  "commit_id": "${CIRCLE_SHA1}",
+  "path": "${file}",
+  "position": $line
+}
+EOF
 }
 
 PHPCS_RESULT="$(phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md web/modules/ web/themes/ web/profiles/)"
@@ -36,7 +41,10 @@ if echo "$PHPCS_RESULT" | grep -q "$STR_ERROR"; then
     temp="${temp#\"}"
     file="${temp#$CURRENT_DIR/}"
 
-    postReviewComment $file $2 $f5 $POST_URL
+    comment=$f5
+    line=$f2
+
+    curl -H "Authorization: token ${GIT_TOKEN}" --request POST --data "$(generate_post_data)" $POST_URL
   done <<< "$PHPCS_CSV"
   exit 1
 fi
