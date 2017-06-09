@@ -4,3 +4,9 @@
  * @file
  * Custom function for site.
  */
+
+function specific_preprocess_node(&$variables) {
+  if (!$variables['page'] && $variables['view_mode'] == 'full') {
+    $variables['page'] = TRUE;
+  }
+}
