@@ -6,7 +6,7 @@ machine:
     version: 7.0.4
 
   environment:
-    PATH: "${PATH}:${HOME}/terminus/bin:${HOME}/coder/vendor/bin:${HOME}/bin"
+    PATH: "${PATH}:${HOME}/terminus/bin:${HOME}/coder/vendor/bin"
 
 dependencies:
   cache_directories:
@@ -21,8 +21,6 @@ dependencies:
 
     - git config --global user.email $GIT_EMAIL
     - git config --global user.name $GIT_USERNAME
-
-    - /usr/bin/env COMPOSER_BIN_DIR=$HOME/bin composer --working-dir=$HOME require drush/drush "^8"
 
     # Install Terminus
     - ./scripts/install_terminus.sh

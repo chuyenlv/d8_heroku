@@ -208,7 +208,10 @@ then
   cp behat.yml.example behat.yml
   sed -i "s/pantheon_base_url/$PANTHEON_SITE_NAME.$ENV/g" behat.yml
   sed -i "s/pantheon_alias/$PANTHEON_SITE_NAME.$ENV/g" behat.yml
-  export PATH="$HOME/bin:$PATH"
+
+  composer global require drush/drush
+  export PATH="$HOME/.config/composer/vendor/bin:$PATH"
+
   BEHAT_TEST="$(vendor/bin/behat)"
 
   echo "${BEHAT_TEST}"
