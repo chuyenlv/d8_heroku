@@ -211,6 +211,8 @@ then
 
   composer global require drush/drush
   export PATH="$HOME/.composer/vendor/bin:$PATH"
+  which drush
+  drush --version
 
   BEHAT_TEST="$(vendor/bin/behat)"
 
