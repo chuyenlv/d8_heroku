@@ -188,7 +188,7 @@ if [ $CIRCLE_BRANCH != $GIT_BRANCH_DEPLOY ]
 then
   echo -e "\n${txtgrn}Pushing the ${normalize_branch} branch to Pantheon ${txtrst}"
   git push -u origin $normalize_branch --force
-  terminus remote:drush $PANTHEON_SITE_UUID.$normalize_branch config-import -y
+  terminus remote:drush $PANTHEON_SITE_UUID.$normalize_branch -- config-import --yes
   ENV=$normalize_branch
 else
   echo -e "\n${txtgrn}Pushing the master branch to Pantheon ${txtrst}"
