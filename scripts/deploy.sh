@@ -208,7 +208,11 @@ then
   cp behat.yml.example behat.yml
   sed -i "s/pantheon_base_url/$PANTHEON_SITE_NAME.$ENV/g" behat.yml
   sed -i "s/pantheon_alias/$PANTHEON_SITE_NAME.$ENV/g" behat.yml
-  vendor/bin/behat
+  BEHAT_TEST="$(vendor/bin/behat)"
+
+  if echo "$BEHAT_TEST" | grep -q "failed"; then
+    exit 1
+  fi
 fi
 
 echo -e "\n${txtylw}Cleaning up multidevs from closed pull requests...${txtrst}"
