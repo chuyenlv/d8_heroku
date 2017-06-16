@@ -17,10 +17,6 @@ workflows:
 
   sync_code:
     after:
-      - type: webphp
-        description: Run import configuration from .yml files when sync code
-        script: private/scripts/drush_config_import.php
-
       -
         type: webphp
         description: Send slack notification when sync code

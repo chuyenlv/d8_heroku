@@ -6,7 +6,7 @@ machine:
     version: 7.0.4
 
   environment:
-    PATH: "${PATH}:${HOME}/terminus/bin:${HOME}/coder/vendor/bin"
+    PATH: "${PATH}:${HOME}/terminus/bin:${HOME}/coder/vendor/bin:${HOME}/${CIRCLE_PROJECT_REPONAME}/vendor/bin"
 
 dependencies:
   cache_directories:
