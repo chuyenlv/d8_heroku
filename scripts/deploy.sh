@@ -211,7 +211,7 @@ then
   export PATH="$HOME/bin:$PATH"
   BEHAT_TEST="$(vendor/bin/behat)"
 
-  echo "${$BEHAT_TEST}"
+  echo "${BEHAT_TEST}"
 
   if echo "$BEHAT_TEST" | grep -q "failed"; then
     exit 1
