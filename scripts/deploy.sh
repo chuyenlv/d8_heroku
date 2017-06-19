@@ -209,6 +209,9 @@ then
   sed -i "s/pantheon_base_url/$PANTHEON_SITE_NAME.$ENV/g" behat.yml
   sed -i "s/pantheon_alias/$PANTHEON_SITE_NAME.$ENV/g" behat.yml
 
+  # Check content file behat.
+  more behat.yml
+
   composer global require drush/drush
   export PATH="$HOME/.composer/vendor/bin:$PATH"
   which drush
