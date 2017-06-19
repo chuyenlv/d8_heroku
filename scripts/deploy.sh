@@ -206,7 +206,7 @@ then
   terminus aliases -y
   cd $BUILD_DIR
   cp behat.yml.example behat.yml
-  sed -i "s/pantheon_base_url/$PANTHEON_SITE_NAME.$ENV/g" behat.yml
+  sed -i "s/pantheon_base_url/http:\/\/$ENV-$PANTHEON_SITE_NAME.pantheonsite.io/g" behat.yml
   sed -i "s/pantheon_alias/$PANTHEON_SITE_NAME.$ENV/g" behat.yml
 
   # Check content file behat.
