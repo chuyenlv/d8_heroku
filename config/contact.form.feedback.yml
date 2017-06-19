@@ -1,4 +1,4 @@
-uuid: 44ed04a6-e0c6-4ec3-94f6-6a26577304b6
+uuid: a12eb292-947e-4586-84b3-a7419c2be746
 langcode: en
 status: true
 dependencies: {  }
@@ -7,7 +7,7 @@ _core:
 id: feedback
 label: 'Website feedback'
 recipients:
-  - chuyen.luu@ffwagency.com
+  - admin@local.dev
 reply: ''
 weight: 0
 message: 'Your message has been sent.'

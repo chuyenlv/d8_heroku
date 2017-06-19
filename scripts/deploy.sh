@@ -183,16 +183,46 @@ git add -A --force .
 git commit -m "Circle CI build $CIRCLE_BUILD_NUM by $CIRCLE_PROJECT_USERNAME" -m "$COMMIT_MESSAGE"
 
 # Force push to Pantheon
+ENV='dev'
 if [ $CIRCLE_BRANCH != $GIT_BRANCH_DEPLOY ]
 then
   echo -e "\n${txtgrn}Pushing the ${normalize_branch} branch to Pantheon ${txtrst}"
   git push -u origin $normalize_branch --force
+  terminus remote:drush $PANTHEON_SITE_UUID.$normalize_branch -- config-import --yes
+  ENV=$normalize_branch
 else
   echo -e "\n${txtgrn}Pushing the master branch to Pantheon ${txtrst}"
   git push -u origin master --force
 
   if [[ "$DEPLOY_CLONE_CONTENT_FROM_ENV" == "test" || "$DEPLOY_CLONE_CONTENT_FROM_ENV" == "live" ]]; then
     terminus env:clone-content $PANTHEON_SITE_UUID.$DEPLOY_CLONE_CONTENT_FROM_ENV dev -y
+  fi
+fi
+
+if [ -n "${RUN_BEHAT+1}" ]
+then
+  echo -e "\n${txtylw}Run behat test...${txtrst}"
+  PANTHEON_SITE_NAME="$(terminus site:info $PANTHEON_SITE_UUID --field=name)"
+  terminus aliases -y
+  cd $BUILD_DIR
+  cp behat.yml.example behat.yml
+  sed -i "s/pantheon_base_url/http:\/\/$ENV-$PANTHEON_SITE_NAME.pantheonsite.io/g" behat.yml
+  sed -i "s/pantheon_alias/$PANTHEON_SITE_NAME.$ENV/g" behat.yml
+
+  # Check content file behat.
+  more behat.yml
+
+  composer global require drush/drush
+  export PATH="$HOME/.composer/vendor/bin:$PATH"
+  which drush
+  drush --version
+
+  BEHAT_TEST="$(vendor/bin/behat)"
+
+  echo "${BEHAT_TEST}"
+
+  if echo "$BEHAT_TEST" | grep -q "failed"; then
+    exit 1
   fi
 fi
 

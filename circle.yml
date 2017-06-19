@@ -8,6 +8,9 @@ machine:
   environment:
     PATH: "${PATH}:${HOME}/terminus/bin:${HOME}/coder/vendor/bin"
 
+  hosts:
+    d8-practices.dev: 127.0.0.1
+
 dependencies:
   cache_directories:
     - ~/.composer/cache
