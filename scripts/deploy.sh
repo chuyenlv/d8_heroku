@@ -201,7 +201,6 @@ fi
 
 if [ -n "${RUN_BEHAT+1}" ]
 then
-  echo -e "\n${txtylw}Run behat test...${txtrst}"
   PANTHEON_SITE_NAME="$(terminus site:info $PANTHEON_SITE_UUID --field=name)"
   terminus aliases -y
   cd $BUILD_DIR
@@ -214,14 +213,15 @@ then
 
   composer global require drush/drush
   export PATH="$HOME/.composer/vendor/bin:$PATH"
-  which drush
-  drush --version
 
+  echo -e "\n${txtylw}Run behat test...${txtrst}"
   BEHAT_TEST="$(vendor/bin/behat)"
 
   echo "${BEHAT_TEST}"
 
   if echo "$BEHAT_TEST" | grep -q "failed"; then
+    echo -e "\n${txtgrn}Sending a message to the slack channel ${txtrst}"
+    curl -X POST --data "payload={\"channel\": \"\", \"username\": \"Behat\", \"text\": \"Behat test wrong, please check!!!\"}" $SLACK_HOOK_URL
     exit 1
   fi
 fi
