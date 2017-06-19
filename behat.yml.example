@@ -11,6 +11,6 @@ default:
       base_url: pantheon_base_url
     Drupal\DrupalExtension:
       blackbox: ~
-      api_driver: 'drupal'
+      api_driver: 'drush'
       drush:
         alias: 'pantheon_alias'
