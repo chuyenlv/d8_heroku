@@ -221,7 +221,7 @@ then
 
   if echo "$BEHAT_TEST" | grep -q "failed"; then
     echo -e "\n${txtgrn}Sending a message to the slack channel ${txtrst}"
-    curl -X POST --data "payload={\"channel\": \"\", \"username\": \"Behat\", \"text\": \"```${BEHAT_TEST}```\"}" $SLACK_HOOK_URL
+    curl -X POST --data "payload={\"channel\": \"\", \"username\": \"Behat\", \"text\": \"Behat test wrong, please check!!!\"}" $SLACK_HOOK_URL
     exit 1
   fi
 fi
