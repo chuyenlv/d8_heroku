@@ -15,8 +15,17 @@ jobs:
       - checkout
 
       - run:
-          name: Test command line
-          command: whoami
+          name: Set github token to avoid rate limit
+          command: |
+            composer config --global github-oauth.github.com $GIT_TOKEN
+            git config --global user.email $GIT_EMAIL
+            git config --global user.name $CIRCLE_USERNAME
+
+      - save_cache:
+          key: cache-{{ CIRCLE_SHA1 }}
+          paths:
+            - ~/.ssh
+            - ~/.gitconfig
 
   code_sniffers:
     <<: *init
@@ -25,14 +34,7 @@ jobs:
       - checkout
       # Download and cache dependencies
       - restore_cache:
-          keys: code-sniffers-cache
-
-      - run:
-          name: Set github token to avoid rate limit
-          command: |
-            composer config --global github-oauth.github.com $GIT_TOKEN
-            git config --global user.email $GIT_EMAIL
-            git config --global user.name $CIRCLE_USERNAME
+          key: code-sniffers-cache
 
       - run:
           name: Install Coder Sniffer
@@ -45,3 +47,4 @@ jobs:
       - save_cache:
           paths: ~/coder
           key: code-sniffers-cache
+
