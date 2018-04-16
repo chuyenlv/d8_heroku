@@ -15,7 +15,7 @@ generate_post_data() {
 EOF
 }
 
-PHPCS_RESULT="$(phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md web/modules/ web/themes/ web/profiles/)"
+PHPCS_RESULT="$(phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md web/modules/ web/themes/ --ignore=web/modules/contrib --ignore=web/themes/contrib)"
 
 echo "${PHPCS_RESULT}"
 
@@ -29,7 +29,8 @@ if echo "$PHPCS_RESULT" | grep -q "$STR_ERROR"; then
 
   PR_NUMBER=${CI_PULL_REQUEST##*/}
 
-  PHPCS_CSV="$(phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md web/modules/ web/themes/ web/profiles/ --report=csv)"
+  PHPCS_CSV="$(phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md web/modules/ web/themes/ --ignore=web/modules/contrib --ignore=web/themes/contrib --report=csv)"
+
   CURRENT_DIR=$(pwd)
   POST_URL="https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pulls/$PR_NUMBER/comments"
   while IFS=',' read -r f1 f2 f3 f4 f5 f6 f7 f8; do

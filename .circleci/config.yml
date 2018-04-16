@@ -53,7 +53,7 @@ jobs:
 
       - run:
           name: Check custom code standard
-          command: sh scripts/bin/phpcs.sh
+          command: scripts/bin/phpcs.sh
 
       - save_cache:
           paths: ~/coder
