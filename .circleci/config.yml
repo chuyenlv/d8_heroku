@@ -9,7 +9,16 @@ init: &init
 
 version: 2
 jobs:
-  code-sniffers:
+  build:
+    <<: *init
+    steps:
+      - checkout
+
+      - run:
+          name: Test command line
+          command: whoami
+
+  code_sniffers:
     <<: *init
 
     steps:
