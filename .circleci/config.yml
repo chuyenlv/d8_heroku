@@ -82,9 +82,6 @@ workflows:
   multi-build-flow:
     jobs:
       - code_sniffers
-      - build:
-          requires:
-            - code_sniffers
 
       - multidev:
           type: approval
