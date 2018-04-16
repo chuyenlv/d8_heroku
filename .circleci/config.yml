@@ -9,22 +9,30 @@ init: &init
 
 version: 2
 jobs:
-  build:
+  code-sniffers:
     <<: *init
 
     steps:
       - checkout
-
       # Download and cache dependencies
       - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "composer.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+          keys: code-sniffers-cache
 
-      - run: composer install -n --prefer-dist
+      - run:
+          name: Set github token to avoid rate limit
+          command: |
+            composer config --global github-oauth.github.com $GIT_TOKEN
+            git config --global user.email $GIT_EMAIL
+            git config --global user.name $CIRCLE_USERNAME
+
+      - run:
+          name: Install Coder Sniffer
+          command: sh scripts/install_coder_sniffer.sh
+
+      - run:
+          name: Check custom code standard
+          command: sh scripts/bin/phpcs.sh
 
       - save_cache:
-          paths:
-            - ./vendor
-          key: v1-dependencies-{{ checksum "composer.json" }}
+          paths: ~/coder
+          key: code-sniffers-cache
