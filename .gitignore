@@ -37,6 +37,7 @@ web/update.php
 web/web.config
 web/.eslintrc.json
 !web/.htaccess
+drush
 
 # Logs and databases #
 ######################
