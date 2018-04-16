@@ -15,7 +15,9 @@ jobs:
       - checkout
 
       - restore_cache:
-          key: terminus-cache
+          keys:
+            - terminus-cache
+            - cache-{{ .Environment.CIRCLE_SHA1 }}
 
       - run:
           name: Set github token to avoid rate limit
