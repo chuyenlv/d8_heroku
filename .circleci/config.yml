@@ -1,5 +1,5 @@
 init: &init
-  working_directory: /home/circleci/d8-pantheon
+  working_directory: ~/d8-pantheon
   environment:
     TZ: "/usr/share/zoneinfo/America/Los_Angeles"
     DEBUG: "true"
