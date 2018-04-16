@@ -22,7 +22,7 @@ jobs:
             git config --global user.name $CIRCLE_USERNAME
 
       - save_cache:
-          key: cache-{{ CIRCLE_SHA1 }}
+          key: cache-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - ~/.ssh
             - ~/.gitconfig
